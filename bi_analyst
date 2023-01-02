@@ -1,0 +1,90 @@
+#Jumlah seluruh product yang terjual
+select sum(qty) as total_quantity
+from `latihanquery1.order`;
+
+#Jumlah unique customer yang telah memesan produk
+select count(distinct customer_id) as total_unique_cust
+from `latihanquery1.order`;
+
+#Rata-rata profit dari seluruh order (dalam mata uang)
+select concat("US$ " , avg(profit)) as rata_rata_profit
+from `latihanquery1.order`;
+
+#Berapa discount terkecil dari seluruh order
+select min(discount)
+from `latihanquery1.order`;
+
+#Jumlah seluruh produk dari kategori Furniture
+select category,
+        sum(qty) as total_qty
+from `latihanquery1.categories` 
+left join `latihanquery1.order`
+using(product_id)
+where category = "Furniture"
+group by 1
+order by 2;
+
+#Nama pelanggan yang membeli produk paling banyak (dalam quantity)
+select customer_name,
+        sum(qty) as total_qty
+from `latihanquery1.order`
+left join `latihanquery1.customer`
+using(customer_id)
+group by 1
+order by 2 desc
+limit 1;
+
+#Nama pelanggan yang paling sering melakukan repeat order
+select customer_name,
+        count(a.customer_id) as total_repeatorder
+from `latihanquery1.order` as a
+left join `latihanquery1.customer` as b
+on a.customer_id = b.customer_id
+group by 1
+order by 2 desc;
+
+#Dari kota mana pelanggan yang paling sering melakukan repeat order
+select customer_name,
+        city,
+        count(a.customer_id) as total_repeatorder
+from `latihanquery1.order` as a
+left join `latihanquery1.customer` as b
+on a.customer_id = b.customer_id
+group by 1,2
+order by 3 desc;
+
+#Order mana yang mendapatkan total discount paling kecil
+select order_id,
+        min(discount) as min_disc
+from `latihanquery1.order`
+group by 1
+order by 2 asc;
+
+#Total profit yang datang dari produk dengan sub category Furnishings & Supplies
+select sub_category,
+        sum(profit) as total_profit
+from `latihanquery1.order`
+left join `latihanquery1.categories`
+using(product_id)
+where sub_category in("Supplies", "Furnishings")
+group by 1
+order by 2;
+
+#Jumlah order yang berasal dari produk warna hitam (terdapat keterangan “black” di nama produknya)
+select product_name,
+        sum(qty) as total_qty
+from `latihanquery1.order`
+left join `latihanquery1.categories`
+using(product_id)
+where product_name like "%Black%"
+group by 1
+order by 2;
+
+#Jumlah order yang memiliki waktu pengiriman masih di hari yang sama dengan waktu pemesanan
+select order_date,
+        ship_date,
+        sum(qty) as total_qty
+from `latihanquery1.order`
+where order_date = ship_date
+group by 1,2
+order by 3 desc;
